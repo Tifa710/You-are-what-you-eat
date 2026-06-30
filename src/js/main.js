@@ -7,6 +7,7 @@ const allRecipes = document.querySelector("#all-recipes-section");
 const mealCategories = document.querySelector("#meal-categories-section");
 const searchFiltersSection = document.querySelector("#search-filters-section");
 const headerStart = document.querySelector("#header");
+const categoriesGrid = document.querySelector("#categories-grid");
 const recipesGrid = document.querySelector("#recipes-grid");
 const mealDetails = document.querySelector("#meal-details");
 const productSection = document.querySelector("#products-section");
@@ -14,6 +15,7 @@ const foodLogSection = document.querySelector("#foodlog-section");
 const baseURL = "https://nutriplan-api.vercel.app/api/meals/";
 let allMeals = [];
 let allAreas = [];
+let allCategories = [];
 let selectedMeal;
 //?==========================Events===============================
 // taskContainer.addEventListener("click", (e) => {
@@ -52,6 +54,15 @@ areaBtn.addEventListener("click", (e) => {
   const area = button.dataset.area;
 
   getMealsByArea(area);
+});
+categoriesGrid.addEventListener("click", (e) => {
+  const card = e.target.closest(".category-card");
+
+  if (!card) return;
+
+  const category = card.dataset.category;
+
+  getMealsByCategory(category);
 });
 //*===========================Functions============================
 function getMealsScreen() {
@@ -148,6 +159,7 @@ async function getAreasToDisplay() {
 
   displayArea();
 }
+
 function displayArea() {
   let areaBox = "";
 
@@ -163,6 +175,46 @@ function displayArea() {
   }
 
   areaBtn.innerHTML = areaBox;
+}
+async function getCategoriesToDisplay() {
+  const response = await fetch(`${baseURL}categories`);
+  const data = await response.json();
+
+  allCategories = data.results;
+  displayCategories();
+}
+
+function displayCategories() {
+  let categoriesBox = "";
+
+  for (let index = 0; index < allCategories.length; index++) {
+    categoriesBox += `
+      <div
+              class="category-card bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-3 border border-emerald-200 hover:border-emerald-400 hover:shadow-md cursor-pointer transition-all group"
+              data-category="${allCategories[index].name}"
+            >
+              <div class="flex items-center gap-2.5">
+                <div
+                  class="text-white w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm"
+                >
+                  <i class="fa-solid fa-drumstick-bite"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-gray-900">${allCategories[index].name}</h3>
+                </div>
+              </div>
+        </div>`;
+  }
+  categoriesGrid.innerHTML = categoriesBox;
+}
+async function getMealsByCategory(category) {
+  const response = await fetch(`${baseURL}filter?category=${category}`);
+
+  const data = await response.json();
+
+  allMeals = data.results;
+
+  displayMeals();
 }
 function displayMeals() {
   let box = "";
@@ -507,6 +559,7 @@ function displayMealDetails(element) {
         </div>`;
   mealDetails.innerHTML = box;
 }
+getCategoriesToDisplay();
 getAreasToDisplay();
 getMealsToDisplay();
 getMealsScreen();
