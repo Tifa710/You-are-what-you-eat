@@ -1,3 +1,6 @@
 .loading {
   display: none;
 }
+.active {
+  display: flex;
+}

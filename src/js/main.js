@@ -12,6 +12,7 @@ const recipesGrid = document.querySelector("#recipes-grid");
 const mealDetails = document.querySelector("#meal-details");
 const productSection = document.querySelector("#products-section");
 const foodLogSection = document.querySelector("#foodlog-section");
+const appLoadingOverlay = document.querySelector("#app-loading-overlay");
 const baseURL = "https://nutriplan-api.vercel.app/api/meals/";
 let allMeals = [];
 let allAreas = [];
@@ -135,12 +136,18 @@ function getFoodLogScreen() {
   foodLogSection.classList.remove("hidden");
 }
 async function getMealsToDisplay() {
-  const response = await fetch(`${baseURL}random?count=16`, {
-    method: "GET",
-  });
-  const data = await response.json();
-  allMeals = data.results;
-  displayMeals();
+  toggleLoadingScreen();
+  try {
+    const response = await fetch(`${baseURL}random?count=16`, {
+      method: "GET",
+    });
+    const data = await response.json();
+    allMeals = data.results;
+    displayMeals();
+  } catch (error) {
+  } finally {
+    toggleLoadingScreen();
+  }
 }
 async function getMealsByArea(area) {
   const response = await fetch(`${baseURL}filter?area=${area}`);
@@ -558,6 +565,9 @@ function displayMealDetails(element) {
           </div>
         </div>`;
   mealDetails.innerHTML = box;
+}
+function toggleLoadingScreen() {
+  appLoadingOverlay.classList.toggle("active");
 }
 getCategoriesToDisplay();
 getAreasToDisplay();
